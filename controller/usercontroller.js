@@ -4,7 +4,7 @@ const bcrypt = require ('bcrypt');
 const jwt = require("jsonwebtoken");
 
 const SECRT_KEY = "WdXSkM"
-const signup = async (res,req)=>{
+const signup = async (req,res)=>{
     // async fun to work with db 
 
     // existing user 
@@ -15,43 +15,36 @@ const signup = async (res,req)=>{
     // token
     console.log(req.body);
     
-    var usermame = req.body.username;
+    var username = req.body.username;
     var password = req.body.password;
     var   email =req.body.email;
 
-        // existing 
-        var data = {
-            "name": usermame,
-            "email":email,
-            "password":password,
-           }
-
-           console.log(data)
+        //    console.log(data)
     
-        // try{
-        //     const existingUser =await UserModel.findOne({email:email});
-        // if(existingUser){
-        //     return res.satus(400).json({message:'user already exists'})
-        // }
-        // const hashedPassword = await bcrypt.hash(password,8);
-        // const result = await UserModel.create({
-        //     username:username,
-        //     email:email,
-        //     password:hashedPassword
+        try{
+            const existingUser =await UserModel.findOne({email:email});
+        if(existingUser){
+            return res.status(400).json({message:'user already exists'})
+        }
+        const hashedPassword = await bcrypt.hash(password,8);
+        const result = await UserModel.create({
+            username:username,
+            email:email,
+            password:hashedPassword
            
-        // });
-        // const token = jwt.sign({email:result.email,id:result._id},SECRT_KEY);
-        //     res.status(201).json({user:result,token:token})
-        // }
-        // catch(error){
-        //         console.log(error);
-        //         res.status(500).json({message:"something went wrong"})
-        // }
+        });
+        const token = jwt.sign({email:result.email,id:result._id},SECRT_KEY);
+            res.status(201).json({user:result,token:token})
+        }
+        catch(error){
+                console.log(error);
+                res.status(500).json({message:"something went wrong"})
+        }
     }
 
 
 
-const signin = async (res,req)=>{
+const signin = async (req,res)=>{
 const {email,password} = req.body;
 try{
     const existingUser =await UserModel.findOne({email:email});
